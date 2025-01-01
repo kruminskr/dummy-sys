@@ -8,7 +8,11 @@ var accountId;
 const createConsent = async (req, res) => {
     try {
         const consents = req.consents
+
         const accessToken = req.accessToken;
+        const refreshToken = req.refreshToken
+        const bic = req.bic
+
         const date = new Date().toUTCString()
         const reqId = 1; 
         const userIp = req.ip;
@@ -17,14 +21,16 @@ const createConsent = async (req, res) => {
         const consentDetails = req.body.consentDetails;
 
 
-        const consent = await consentModel.createConsent(accessToken, date, reqId, userIp, userAgent, consentDetails);
+        const consent = await consentModel.createConsent(bic, accessToken, date, reqId, userIp, userAgent, consentDetails);
+
+        console.log(consent)
 
         accountId = req.body?.accountId || consentDetails?.access?.availableAccounts;
         consents[accountId] = consent.consentId;
 
         consentId = consent.consentId;
 
-        const token = generateToken(accessToken, consents);
+        const token = generateToken(accessToken, refreshToken, bic, consents);
         consent.token = token;
 
         res.status(200).json(consent);
@@ -36,11 +42,13 @@ const createConsent = async (req, res) => {
 
 const handleConsentCallback = async (req, res) => {
     try {
-        const accessToken = req.user.accessToken;
+        // const accessToken = req.user.accessToken;
+        const bic = req.bic;
+
         const date = new Date().toUTCString()
         const reqId = 1;
 
-        // const consentStatus = await consentModel.getConsentStatus(accessToken, date, reqId, consentId);
+        // const consentStatus = await consentModel.getConsentStatus(bic, accessToken, date, reqId, consentId);
 
         // if (consentStatus !== 'valid') {
         //     return res.status(400).redirect(`${process.env.APP_URL}/account`);
@@ -55,6 +63,5 @@ const handleConsentCallback = async (req, res) => {
 
 module.exports = {
     createConsent,
-    // signConsent,
     handleConsentCallback, 
 }

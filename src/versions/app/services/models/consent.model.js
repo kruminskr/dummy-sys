@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-const createConsent = async (accessToken, date, reqId, userIp, userAgent, consentDetails) => {
+const createConsent = async (bic, accessToken, date, reqId, userIp, userAgent, consentDetails) => {
     const params = {
-        bic: 'SANDLV22',
+        bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
     };
 
@@ -22,9 +22,9 @@ const createConsent = async (accessToken, date, reqId, userIp, userAgent, consen
     return data;
 }
 
-const getConsentStatus = async (accessToken, date, reqId, consentId) => {
+const getConsentStatus = async (bic, accessToken, date, reqId, consentId) => {
   const params = {
-      bic: process.env.SWEDBANK_BIC,
+      bic,
       'app-id': process.env.SWEDBANK_CLIENT_ID,
   };
 
