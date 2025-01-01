@@ -4,29 +4,42 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+var state;
+
 const oauth2Options = {
   authorizationURL: `${process.env.SWEDBANK_API_URL}/psd2/authorize`,
   tokenURL: `${process.env.SWEDBANK_API_URL}/psd2/token`,
   clientID: process.env.SWEDBANK_CLIENT_ID,
   clientSecret: process.env.SWEDBANK_CLIENT_SECRET,
   callbackURL: process.env.SWEDBANK_CALLBACK_URL,
-  scope: 'PSD2sandbox PSD2sandboxaccount_list',
+  scope: process.env.SWEDBANK_API_SCOPE,
 };
 
 const verifyCallback = (accessToken, refreshToken, profile, done) => {
-  const user = { accessToken, profile };
+  const bic = state.bic
+  const user = { accessToken, profile, refreshToken, bic };
   return done(null, user);
 };
 
 const strategy = new OAuth2Strategy(oauth2Options, verifyCallback);
 
-strategy.authorizationParams = () => ({
-    bic: process.env.SWEDBANK_BIC, 
-    scope: 'PSD2sandbox PSD2sandboxaccount_list', 
-});
-strategy.tokenParams = () => ({
-    bic: process.env.SWEDBANK_BIC, 
-});
+strategy.authorizationParams = (req) => {
+  state = JSON.parse(req.state)
+  const bic = state.bic
+
+  return {
+    bic,
+    scope: process.env.SWEDBANK_API_SCOPE, 
+  };
+};
+
+strategy.tokenParams = (req) => {
+  const bic = state.bic
+
+  return {
+    bic,
+  };
+};
 
 passport.use(strategy);
 

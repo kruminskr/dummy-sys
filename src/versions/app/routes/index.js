@@ -11,7 +11,10 @@ const ConsentController = require('../services/controllers/consent.controller');
 const AccountController = require('../services/controllers/account.controller');
 
 //auth
-router.get('/auth', passport.authenticate('oauth2'));
+router.post('/auth/methods', AuthController.getAuthMethods)
+router.get('/auth/redirect', AuthController.redirectAuth);
+router.post('/auth/decoupled', AuthController.decoupledAuth);
+
 // external
 router.get('/auth/callback',  passport.authenticate('oauth2'), AuthController.handleAuthCallback);
 
