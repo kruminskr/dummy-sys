@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-const getAccounts = async (accessToken, consentId, date, reqId) => {
+const getAccounts = async (bic, accessToken, consentId, date, reqId) => {
     const params = {
-        bic: process.env.SWEDBANK_BIC,
+        bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
         withBalance: false,
     };
@@ -19,9 +19,9 @@ const getAccounts = async (accessToken, consentId, date, reqId) => {
     return data;
 }
 
-const getAccount = async (accessToken, consentId, date, reqId, accountId) => {
+const getAccount = async (bic, accessToken, consentId, date, reqId, accountId) => {
     const params = {
-        bic: process.env.SWEDBANK_BIC,
+        bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
         withBalance: false,
     };
@@ -38,9 +38,9 @@ const getAccount = async (accessToken, consentId, date, reqId, accountId) => {
     return data;
 }
 
-const getAccountBalance = async (accessToken, consentId, date, reqId, accountId) => {
+const getAccountBalance = async (bic, accessToken, consentId, date, reqId, accountId) => {
     const params = {
-        bic: process.env.SWEDBANK_BIC,
+        bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
     };
 
@@ -56,9 +56,9 @@ const getAccountBalance = async (accessToken, consentId, date, reqId, accountId)
     return data;
 }
 
-const getAccountTransactions = async (accessToken, consentId, date, reqId, accountId, dateFrom, dateTo, status, pageId) => {
+const getAccountTransactions = async (bic, accessToken, consentId, date, reqId, accountId, dateFrom, dateTo, status, pageId) => {
     const params = {
-        bic: process.env.SWEDBANK_BIC,
+        bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
         dateFrom,
         dateTo,

@@ -16,6 +16,8 @@ const tokenMiddleware = (req, res, next) => {
         }
 
         req.accessToken = decoded.accessToken;
+        req.refreshToken = decoded.refreshToken;
+        req.bic = decoded.bic
         req.consents = decoded.consents || {};
     
         next();

@@ -6,11 +6,13 @@ const getAccounts = async (req, res) => {
     try {
         const accessToken = req.accessToken;
         const consentId = req.consents["allAccounts"];
+
+        const bic = req.bic
         
         const date = new Date().toUTCString()
-        const reqId = uuidv4();;
+        const reqId = uuidv4();
 
-        const accounts = await accountModel.getAccounts(accessToken, consentId, date, reqId);
+        const accounts = await accountModel.getAccounts(bic, accessToken, consentId, date, reqId);
 
         return res.json(accounts);
     } catch (error){
@@ -25,11 +27,13 @@ const getAccount = async (req, res) => {
 
         const accessToken = req.accessToken;
         const consentId = req.consents[accountId];
+
+        const bic = req.bic
     
         const date = new Date().toUTCString()
         const reqId = uuidv4();;
     
-        const account = await accountModel.getAccount(accessToken, consentId, date, reqId, accountId);
+        const account = await accountModel.getAccount(bic, accessToken, consentId, date, reqId, accountId);
     
         return res.json(account);
     } catch (error) {
@@ -45,10 +49,12 @@ const getAccountBalance = async (req, res) => {
         const accessToken = req.accessToken;
         const consentId = req.consents[accountId];
 
+        const bic = req.bic
+
         const date = new Date().toUTCString()
         const reqId = uuidv4();
         
-        const accountBalance = await accountModel.getAccountBalance(accessToken, consentId, date, reqId, accountId);
+        const accountBalance = await accountModel.getAccountBalance(bic, accessToken, consentId, date, reqId, accountId);
 
         return res.json(accountBalance);
     } catch (error) {
@@ -64,6 +70,8 @@ const getAccountTransactions = async (req, res) => {
         const accessToken = req.accessToken;
         const consentId = req.consents[accountId];
 
+        const bic = req.bic
+
         const dateFrom = req.body.dateFrom;
         const dateTo = req.body.dateTo;
         const status = req.body.status;
@@ -72,7 +80,7 @@ const getAccountTransactions = async (req, res) => {
         const date = new Date().toUTCString()
         const reqId = uuidv4();;
 
-        const accountTransactions = await accountModel.getAccountTransactions(accessToken, consentId, date, reqId, accountId, dateFrom, dateTo, status, pageId);
+        const accountTransactions = await accountModel.getAccountTransactions(bic, accessToken, consentId, date, reqId, accountId, dateFrom, dateTo, status, pageId);
 
         return res.json(accountTransactions)
     } catch (error) {
