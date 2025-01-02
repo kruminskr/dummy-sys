@@ -13,13 +13,17 @@ const AccountController = require('../services/controllers/account.controller');
 //auth
 router.post('/auth/methods', AuthController.getAuthMethods)
 router.get('/auth/redirect', AuthController.redirectAuth);
-router.post('/auth/decoupled', AuthController.decoupledAuth);
-
+router.post('/auth/decoupled/start', AuthController.initiateDecoupledAuth);
+router.post('/auth/decoupled/status', AuthController.decoupledAuthStatus);
+router.get('/auth/token', tokenMiddleware, AuthController.getRefreshToken);
 // external
 router.get('/auth/callback',  passport.authenticate('oauth2'), AuthController.handleAuthCallback);
 
 //consent
-router.post('/consent/create',tokenMiddleware, ConsentController.createConsent);
+router.post('/consent/redirect', tokenMiddleware, ConsentController.redirectConsent);
+router.post('/consent/decoupled', tokenMiddleware, ConsentController.decoupledConsent);
+router.post('/consent/decoupled/sca/start', tokenMiddleware, ConsentController.startSCA);
+router.post('/consent/decoupled/sca/status', tokenMiddleware, ConsentController.checkScaStatus);
 // external
 router.get('/consent/callback', ConsentController.handleConsentCallback);
 
