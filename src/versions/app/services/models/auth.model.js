@@ -43,7 +43,8 @@ const initiateDecoupledAuth = async (bic, psuId, authMethod, personalID, phoneNu
 
     const { data } = await axios.post(`${process.env.SWEDBANK_API_URL}/psd2/v5/authorize-decoupled`, body, {headers, params});
 
-    return data.authorizeId
+    return data
+    // return data.authorizeId
 }
 
 const decoupledAuthState = async (bic, psuId, authId) => {
@@ -67,13 +68,22 @@ const decoupledAuthState = async (bic, psuId, authId) => {
 }
 
 const checkAuthStatus = async (bic, psuId, authId) => {
-    const state = await decoupledAuthState(bic, psuId, authId)
-
-    if (state.scaStatus === "finalised") {
-        return state.authorizationCode;
-    }
-
-    setTimeout(checkStatus, 3000);
+    try {
+        const poll = async () => {
+            const state = await decoupledAuthState(bic, psuId, authId)
+    
+            if (state.scaStatus === "finalised") {
+                return state.authorizationCode;
+            }
+    
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return poll(); 
+        }
+    
+        return await poll();
+    } catch (error) {
+        return error?.response?.data?.tppMessages || error
+    } 
 }
 
 const getAuthToken = async (bic, credentials, authCode) => {
@@ -89,8 +99,33 @@ const getAuthToken = async (bic, credentials, authCode) => {
         grant_type: "authorization_code",
         code: authCode
     }
+
     
     const { data } = await axios.post(`${process.env.SWEDBANK_API_URL}/psd2/token`, body, {headers});
+
+    console.log(data)   
+
+
+    return data;
+}
+
+const getRefreshToken = async (date, reqId, accessToken, refreshToken) => {
+    const params = {
+        client_id: process.env.SWEDBANK_CLIENT_ID,
+        client_secret: process.env.SWEDBANK_CLIENT_SECRET,  
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        access_token: accessToken,
+        redirect_uri: process.env.SWEDBANK_CALLBACK_URL,
+    }
+
+    const headers = {
+        date,
+        "X-Request-ID": reqId,
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    
+    const { data } = await axios.post(`${process.env.SWEDBANK_API_URL}/psd2/token`, {}, {headers, params});
 
     return data;
 }
@@ -101,4 +136,5 @@ module.exports = {
     decoupledAuthState,
     checkAuthStatus,
     getAuthToken,
+    getRefreshToken,
 }

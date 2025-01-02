@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 const AuthModel = require('../models/auth.model');
 
 const passport = require('../../../../config/passport')
@@ -31,7 +33,7 @@ const redirectAuth = async (req, res) => {
     }
 }
 
-const decoupledAuth = async (req, res) => {
+const initiateDecoupledAuth = async (req, res) => {
     try {
         const authMethod = req.body.authMethod;
         const psuId = req.body.userId;
@@ -46,12 +48,21 @@ const decoupledAuth = async (req, res) => {
             phoneNumber = req.body.phoneNumber
         }
 
-        console.log(phoneNumber)
+        const authData = await AuthModel.initiateDecoupledAuth(bic, psuId, authMethod, personalID, phoneNumber) 
+
+        return res.json(authData);
+    } catch (error) {
+        console.error(error?.response?.data?.tppMessages || error.message);
+        res.status(500).send(error?.response?.data?.tppMessages || error.message);
+    }
+}
+
+const decoupledAuthStatus = async (req, res) => {
+    try {
+        const psuId = req.body.userId;
+        const authId = req.body.authId;
 
         const credentials = btoa(process.env.SWEDBANK_CLIENT_ID + ":" + process.env.SWEDBANK_CLIENT_SECRET);
-
-        // initiates decoupoled authorization
-        const authId = await AuthModel.initiateDecoupledAuth(bic, psuId, authMethod, personalID, phoneNumber)        
 
         // check if authStatus is finalised every 3 seconds
         const authCode = await AuthModel.checkAuthStatus(bic, psuId, authId)
@@ -63,6 +74,27 @@ const decoupledAuth = async (req, res) => {
         const refreshToken = authData.refresh_token
 
         const token = generateToken(accessToken, refreshToken, bic, {});
+
+        return res.json(token);
+    } catch (error) {
+        console.error(error?.response?.data?.tppMessages || error.message);
+        res.status(500).send(error?.response?.data?.tppMessages || error.message);
+    }
+}
+
+const getRefreshToken = async (req, res) => {
+    try {
+        const accessToken = req.accessToken;
+        const refreshToken = req.refreshToken
+        const bic = req.bic
+        const consents = req.consents
+
+        const date = new Date().toUTCString()
+        const reqId = uuidv4();
+
+        const newTokenData = await AuthModel.getRefreshToken(date, reqId, accessToken, refreshToken);
+
+        const token = generateToken(newTokenData.access_token, newTokenData.refresh_token, bic, consents);
 
         return res.json(token);
     } catch (error) {
@@ -79,7 +111,6 @@ const handleAuthCallback = async (req, res) => {
 
         const token = generateToken(accessToken, refreshToken, bic, {});
 
-        // mosh var kaut ko diskrētāk padot
         res.redirect(`${process.env.APP_URL}/account/?token=${token}`);
     } catch (error) {
         res.redirect('http://localhost:5173/');
@@ -89,6 +120,8 @@ const handleAuthCallback = async (req, res) => {
 module.exports = {
     getAuthMethods,
     redirectAuth,
-    decoupledAuth,
+    initiateDecoupledAuth,
+    decoupledAuthStatus,
+    getRefreshToken,
     handleAuthCallback 
 }
