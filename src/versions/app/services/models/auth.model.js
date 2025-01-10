@@ -44,7 +44,6 @@ const initiateDecoupledAuth = async (bic, psuId, authMethod, personalID, phoneNu
     const { data } = await axios.post(`${process.env.SWEDBANK_API_URL}/psd2/v5/authorize-decoupled`, body, {headers, params});
 
     return data
-    // return data.authorizeId
 }
 
 const decoupledAuthState = async (bic, psuId, authId) => {

@@ -4,7 +4,7 @@ const getAccounts = async (bic, accessToken, consentId, date, reqId) => {
     const params = {
         bic,
         'app-id': process.env.SWEDBANK_CLIENT_ID,
-        withBalance: false,
+        withBalance: 'false',
     };
 
     const headers = {
@@ -62,7 +62,7 @@ const getAccountTransactions = async (bic, accessToken, consentId, date, reqId, 
         'app-id': process.env.SWEDBANK_CLIENT_ID,
         dateFrom,
         dateTo,
-        withBalance: false,
+        withBalance: true,
         bookingStatus: status, 
         statementFormat: 'json',
         pageSize: 5,

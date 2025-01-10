@@ -29,7 +29,7 @@ const redirectAuth = async (req, res) => {
             state: JSON.stringify({ bic }), 
         })(req, res);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send(error?.response?.data?.tppMessages || error.message);
     }
 }
 
@@ -113,7 +113,7 @@ const handleAuthCallback = async (req, res) => {
 
         res.redirect(`${process.env.APP_URL}/account/?token=${token}`);
     } catch (error) {
-        res.redirect('http://localhost:5173/');
+        res.redirect('http://localhost:5173');
     }
 }
 
