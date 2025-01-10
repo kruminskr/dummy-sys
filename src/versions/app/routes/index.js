@@ -26,6 +26,7 @@ router.post('/consent/decoupled/sca/start', tokenMiddleware, ConsentController.s
 router.post('/consent/decoupled/sca/status', tokenMiddleware, ConsentController.checkScaStatus);
 // external
 router.get('/consent/callback', ConsentController.handleConsentCallback);
+router.get('/consent/callback/fail', ConsentController.handleConsentCallbackFail);
 
 //account
 router.get('/accounts', tokenMiddleware, AccountController.getAccounts);

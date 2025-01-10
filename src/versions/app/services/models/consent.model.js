@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+// handles consent creation for globas consents and detailed consents
 const createConsent = async (bic, accessToken, date, reqId, userIp, userAgent, consentDetails, redirect, authorisation) => {
     const params = {
         bic,
@@ -13,6 +14,7 @@ const createConsent = async (bic, accessToken, date, reqId, userIp, userAgent, c
         'PSU-IP-Address': userIp,
         'PSU-User-Agent': userAgent,
         'TPP-Redirect-URI': `${process.env.REDIRECT_URL}/api/app/consent/callback`,
+        'TPP-Nok-Redirect-URI': `${process.env.REDIRECT_URL}/api/app/consent/callback/fail`,
         'TPP-Redirect-Preferred': redirect,
         'TPP-Explicit-Authorisation-Preferred': authorisation,
     };
@@ -22,6 +24,7 @@ const createConsent = async (bic, accessToken, date, reqId, userIp, userAgent, c
     return data;
 }
 
+// handles authorisation process - returns authorisation ID and available methods
 const startAuthorisation = async (bic, accessToken, consentId, userIp, userAgent) => {
     const date = new Date().toUTCString()
     const reqId = 1; 
@@ -45,6 +48,7 @@ const startAuthorisation = async (bic, accessToken, consentId, userIp, userAgent
     return data;
 }
 
+// handles SCA process - initiates SCA process in users device
 const startSCA = async (bic, accessToken, consentId, authorisationId, body) => {
     const date = new Date().toUTCString()
     const reqId = 1; 
@@ -61,13 +65,13 @@ const startSCA = async (bic, accessToken, consentId, authorisationId, body) => {
 
     };
 
-    console.log('body', body);
-
+    // when Swedbank handles request it initiates the SCA process in users device
     const { data } = await axios.put(`${process.env.SWEDBANK_API_URL}/sandbox/v5/consents/${consentId}/authorisations/${authorisationId}`, body, {headers, params});
 
     return data;
 }
 
+// handles the retrieval of SCA status
 const getScaStatus = async (accessToken, bic, consentId, authorisationId) => {
     const date = new Date().toUTCString()
     const reqId = 1; 
@@ -89,6 +93,7 @@ const getScaStatus = async (accessToken, bic, consentId, authorisationId) => {
 }
 
 
+// check SCA status every 3 seconds - when user signs consent returns
 const checkScaStatus = async (accessToken, bic, consentId, authorisationId) => {
     try {
         const poll = async () => {

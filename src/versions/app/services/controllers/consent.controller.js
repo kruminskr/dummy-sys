@@ -2,7 +2,7 @@ const consentModel = require('../models/consent.model');
 
 const { generateToken } = require('../../../../services/token');
 
-var consentId; // varbút sim ir labaka alternativa
+var consentId; 
 var accountId;
 
 const redirectConsent = async (req, res) => {
@@ -25,6 +25,8 @@ const redirectConsent = async (req, res) => {
 
         const consent = await consentModel.createConsent(bic, accessToken, date, reqId, userIp, userAgent, consentDetails, redirect, authorisation);
 
+        console.log('consent: ', consent)
+
         accountId = req.body?.accountId || consentDetails?.access?.availableAccounts;
         consents[accountId] = consent.consentId;
 
@@ -40,6 +42,7 @@ const redirectConsent = async (req, res) => {
     }
 }
 
+// initiate decoupled consent flow - returns avaliable methods and creates cosnent ID
 const decoupledConsent = async (req, res) => {
     try {
         const consents = req.consents
@@ -58,15 +61,16 @@ const decoupledConsent = async (req, res) => {
 
         const consentDetails = req.body.consentDetails;
 
-        // create consent
+        // create consents
         const consent = await consentModel.createConsent(bic, accessToken, date, reqId, userIp, userAgent, consentDetails, redirect, authorisation);
 
-        // start authorisation
+        // start authorisations process - returns avaliable methods
         const consentData = await consentModel.startAuthorisation(bic, accessToken, consent.consentId, userIp, userAgent)
 
         accountId = req.body.accountId;
         consents[accountId] = consent.consentId;
 
+        // generate session token
         const token = generateToken(accessToken, refreshToken, bic, consents);
         consentData.token = token;
 
@@ -89,6 +93,7 @@ const startSCA = async (req, res) => {
         const accountId = req.body.accountId;
         const consentId = req.consents[accountId];
 
+        // start SCA - returns SCA data
         const scaData = await consentModel.startSCA(bic, accessToken, consentId, authorisationId, body)
 
         return res.json(scaData);
@@ -98,6 +103,7 @@ const startSCA = async (req, res) => {
     }
 }
 
+// check SCA status - checks statuss of SCA and returns when SCA is completed
 const checkScaStatus = async (req, res) => {
     try {
         const accessToken = req.accessToken;
@@ -109,8 +115,6 @@ const checkScaStatus = async (req, res) => {
         const consentId = req.consents[accountId];
 
         await consentModel.checkScaStatus(accessToken, bic, consentId, authorisationId);
-
-        console.log('back')
 
         return res.status(200).send()
     } catch (error) {
@@ -139,10 +143,20 @@ const handleConsentCallback = async (req, res) => {
     }
 }
 
+const handleConsentCallbackFail = async (req, res) => {
+    try {
+        return res.status(200).redirect(`${process.env.APP_URL}/account`);
+    } catch (error) {
+        console.error(error?.response?.data?.tppMessages || error);
+        return res.status(500).send(error?.response?.data?.tppMessages || error);
+    }
+}
+
 module.exports = {
     redirectConsent,
     decoupledConsent,
     startSCA,
     checkScaStatus,
     handleConsentCallback, 
+    handleConsentCallbackFail,
 }
