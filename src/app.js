@@ -4,6 +4,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
+const axios = require('axios'); 
+
 const passport = require('./config/passport');
 
 const appRoutes = require('./versions/app/routes/index');
@@ -27,6 +29,11 @@ app.use(
         saveUninitialized: false,
     })
 );
+
+axios.interceptors.request.use((config) => {
+    console.log(`Outgoing request path: ${config.url}`);
+    return config; 
+  });
 
 app.use(passport.initialize());
 app.use(passport.session());
