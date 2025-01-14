@@ -6,6 +6,7 @@ dotenv.config();
 
 var state;
 
+// Basic configuration for the OAuth2
 const oauth2Options = {
   authorizationURL: `${process.env.SWEDBANK_API_URL}/psd2/authorize`,
   tokenURL: `${process.env.SWEDBANK_API_URL}/psd2/token`,
@@ -15,6 +16,7 @@ const oauth2Options = {
   scope: process.env.SWEDBANK_API_SCOPE,
 };
 
+// Values that will be passed to the callback route
 const verifyCallback = (accessToken, refreshToken, profile, done) => {
   const bic = state.bic
   const user = { accessToken, profile, refreshToken, bic };
@@ -23,6 +25,7 @@ const verifyCallback = (accessToken, refreshToken, profile, done) => {
 
 const strategy = new OAuth2Strategy(oauth2Options, verifyCallback);
 
+// Additional parameters to be sent to the authorization endpoint
 strategy.authorizationParams = (req) => {
   state = JSON.parse(req.state)
   const bic = state.bic
@@ -33,6 +36,7 @@ strategy.authorizationParams = (req) => {
   };
 };
 
+// Additional parameters to be sent to the token endpoint
 strategy.tokenParams = (req) => {
   const bic = state.bic
 

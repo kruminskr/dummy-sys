@@ -1,7 +1,6 @@
 const express = require('express');
 
 const passport = require('../../../config/passport')
-
 const tokenMiddleware = require('../../../middlewares/token.middleware');
 
 const router = express.Router();
@@ -16,7 +15,7 @@ router.get('/auth/redirect', AuthController.redirectAuth);
 router.post('/auth/decoupled/start', AuthController.initiateDecoupledAuth);
 router.post('/auth/decoupled/status', AuthController.decoupledAuthStatus);
 router.get('/auth/token', tokenMiddleware, AuthController.getRefreshToken);
-// external
+// external auth
 router.get('/auth/callback',  passport.authenticate('oauth2'), AuthController.handleAuthCallback);
 
 //consent
@@ -24,7 +23,7 @@ router.post('/consent/redirect', tokenMiddleware, ConsentController.redirectCons
 router.post('/consent/decoupled', tokenMiddleware, ConsentController.decoupledConsent);
 router.post('/consent/decoupled/sca/start', tokenMiddleware, ConsentController.startSCA);
 router.post('/consent/decoupled/sca/status', tokenMiddleware, ConsentController.checkScaStatus);
-// external
+// external consent
 router.get('/consent/callback', ConsentController.handleConsentCallback);
 router.get('/consent/callback/fail', ConsentController.handleConsentCallbackFail);
 

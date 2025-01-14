@@ -95,26 +95,27 @@ const getScaStatus = async (accessToken, bic, consentId, authorisationId) => {
 
 // check SCA status every 3 seconds - when user signs consent returns
 const checkScaStatus = async (accessToken, bic, consentId, authorisationId) => {
-    try {
-        const poll = async () => {
-            const status = await getScaStatus(accessToken, bic, consentId, authorisationId);
+    const poll = async () => {
+        const status = await getScaStatus(accessToken, bic, consentId, authorisationId);
 
 
-            if (status.scaStatus === 'finalised') {
-                return;
-            }
+        if (status.scaStatus === 'finalised') {
+            return;
+        }
 
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            return poll(); 
-        };
+        if (status.scaStatus === 'failed') {
+            throw new Error('SCA failed');
+        }
 
-        await poll(); 
-    } catch (error) {
-        return error?.response?.data?.tppMessages || error
-    }
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        return poll(); 
+    };
+
+    await poll(); 
 };
 
 
+// get consent status - returns consent status
 const getConsentStatus = async (bic, accessToken, date, reqId, consentId) => {
   const params = {
       bic,

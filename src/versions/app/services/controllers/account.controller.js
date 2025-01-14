@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const accountModel = require('../models/account.model');
 
+// Get all accounts that the user has access to
 const getAccounts = async (req, res) => {
     try {
         const accessToken = req.accessToken;
@@ -21,6 +22,7 @@ const getAccounts = async (req, res) => {
     }
 }
 
+// Get detailed data about an account
 const getAccount = async (req, res) => {
     try {
         const accountId = req.params.accountId;
@@ -42,6 +44,7 @@ const getAccount = async (req, res) => {
     }
 }
 
+// Get the balance of an account
 const getAccountBalance = async (req, res) => {
     try {
         const accountId = req.params.accountId;
@@ -63,6 +66,7 @@ const getAccountBalance = async (req, res) => {
     }
 }
 
+// Get the transactions of an account
 const getAccountTransactions = async (req, res) => {
     try {
         const accountId = req.params.accountId;

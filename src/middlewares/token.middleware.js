@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+// Middleware to verify the token and extract the accessToken, refreshToken, bic and consents
 const tokenMiddleware = (req, res, next) => {
     try {
         const token = req.headers['authorization'];

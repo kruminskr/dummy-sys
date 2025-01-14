@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+// Get all accounts that the user has access to
 const getAccounts = async (bic, accessToken, consentId, date, reqId) => {
     const params = {
         bic,
@@ -19,6 +20,7 @@ const getAccounts = async (bic, accessToken, consentId, date, reqId) => {
     return data;
 }
 
+// Get detailed data about an account
 const getAccount = async (bic, accessToken, consentId, date, reqId, accountId) => {
     const params = {
         bic,
@@ -38,6 +40,7 @@ const getAccount = async (bic, accessToken, consentId, date, reqId, accountId) =
     return data;
 }
 
+// Get the balance of an account
 const getAccountBalance = async (bic, accessToken, consentId, date, reqId, accountId) => {
     const params = {
         bic,
@@ -56,6 +59,7 @@ const getAccountBalance = async (bic, accessToken, consentId, date, reqId, accou
     return data;
 }
 
+// Get the transactions of an account
 const getAccountTransactions = async (bic, accessToken, consentId, date, reqId, accountId, dateFrom, dateTo, status, pageId) => {
     const params = {
         bic,

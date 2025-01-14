@@ -1,20 +1,24 @@
+const { v4: uuidv4 } = require('uuid');
+
 const consentModel = require('../models/consent.model');
 
 const { generateToken } = require('../../../../services/token');
 
 var consentId; 
 var accountId;
+var bic;
 
+// initiate redirect consent flow 
 const redirectConsent = async (req, res) => {
     try {
         const consents = req.consents
 
         const accessToken = req.accessToken;
         const refreshToken = req.refreshToken
-        const bic = req.bic
+        bic = req.bic
 
         const date = new Date().toUTCString()
-        const reqId = 1; 
+        const reqId = uuidv4();
         const userIp = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -52,7 +56,7 @@ const decoupledConsent = async (req, res) => {
         const bic = req.bic
 
         const date = new Date().toUTCString()
-        const reqId = 1; 
+        const reqId = uuidv4();
         const userIp = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -118,23 +122,26 @@ const checkScaStatus = async (req, res) => {
 
         return res.status(200).send()
     } catch (error) {
-        res.status(500).send(error?.response?.data?.tppMessages || error);
+        console.log(error.message)
+        res.status(500).send(error?.response?.data?.tppMessages || error.message);
     }
 }
 
+// handle consent callback - checks if consent is valid and redirects to detailed account page
 const handleConsentCallback = async (req, res) => {
     try {
-        // const accessToken = req.user.accessToken;
-        const bic = req.bic;
+        const accessToken = req.user.accessToken;
 
         const date = new Date().toUTCString()
-        const reqId = 1;
+        const reqId = uuidv4();
 
-        // const consentStatus = await consentModel.getConsentStatus(bic, accessToken, date, reqId, consentId);
+        console.log(bic)
 
-        // if (consentStatus !== 'valid') {
-        //     return res.status(400).redirect(`${process.env.APP_URL}/account`);
-        // }
+        const consentStatus = await consentModel.getConsentStatus(bic, accessToken, date, reqId, consentId);
+
+        if (consentStatus !== 'valid') {
+            return res.status(400).redirect(`${process.env.APP_URL}/account`);
+        }
 
         return res.status(200).redirect(`${process.env.APP_URL}/account/${accountId}/balance`);
     } catch (error) {
@@ -143,6 +150,7 @@ const handleConsentCallback = async (req, res) => {
     }
 }
 
+// handle consent signing fail - redirects to account page
 const handleConsentCallbackFail = async (req, res) => {
     try {
         return res.status(200).redirect(`${process.env.APP_URL}/account`);

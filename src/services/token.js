@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+// generates session token
 const generateToken = (accessToken, refreshToken, bic, consents) => {
 
     const payload = {

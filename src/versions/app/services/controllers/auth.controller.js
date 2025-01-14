@@ -8,6 +8,7 @@ const { generateToken } = require('../../../../services/token');
 
 var bic;
 
+// Get the available authentication methods in the specified country
 const getAuthMethods = async (req, res) => {
     try {
         bic = req.body.bic;
@@ -23,6 +24,7 @@ const getAuthMethods = async (req, res) => {
     }
 }
 
+// Initiate redirect authentication process
 const redirectAuth = async (req, res) => {
     try {
         passport.authenticate('oauth2', {
@@ -33,6 +35,7 @@ const redirectAuth = async (req, res) => {
     }
 }
 
+// Initiate decoupled authentication process
 const initiateDecoupledAuth = async (req, res) => {
     try {
         const authMethod = req.body.authMethod;
@@ -57,6 +60,7 @@ const initiateDecoupledAuth = async (req, res) => {
     }
 }
 
+// Check the status of the decoupled authentication process and get access token
 const decoupledAuthStatus = async (req, res) => {
     try {
         const psuId = req.body.userId;
@@ -82,6 +86,7 @@ const decoupledAuthStatus = async (req, res) => {
     }
 }
 
+// Get a new access token using the refresh token
 const getRefreshToken = async (req, res) => {
     try {
         const accessToken = req.accessToken;
@@ -103,6 +108,7 @@ const getRefreshToken = async (req, res) => {
     }
 }
 
+// Handle the callback from the redirect authentication process
 const handleAuthCallback = async (req, res) => {
     try {
         const { accessToken } = req.user;

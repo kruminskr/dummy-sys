@@ -9,7 +9,6 @@ const axios = require('axios');
 const passport = require('./config/passport');
 
 const appRoutes = require('./versions/app/routes/index');
-// const callbackRoutes = require('./versions/callback/routes/index');
 
 dotenv.config();
 
@@ -31,7 +30,7 @@ app.use(
 );
 
 axios.interceptors.request.use((config) => {
-    console.log(`Outgoing request path: ${config.url}`);
+    console.log(`OUTGOING ${config.method} ${config.url}`);
     return config; 
   });
 
@@ -39,7 +38,5 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/app', appRoutes);
-// app.use('/api/callback', callbackRoutes);
-
 
 module.exports = app;
