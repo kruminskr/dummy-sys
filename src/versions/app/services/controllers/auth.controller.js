@@ -77,7 +77,7 @@ const decoupledAuthStatus = async (req, res) => {
         const accessToken = authData.access_token
         const refreshToken = authData.refresh_token
 
-        const token = generateToken(accessToken, refreshToken, bic, {});
+        const token = await generateToken(accessToken, refreshToken, bic, {});
 
         return res.json(token);
     } catch (error) {
@@ -99,7 +99,7 @@ const getRefreshToken = async (req, res) => {
 
         const newTokenData = await AuthModel.getRefreshToken(date, reqId, accessToken, refreshToken);
 
-        const token = generateToken(newTokenData.access_token, newTokenData.refresh_token, bic, consents);
+        const token = await generateToken(newTokenData.access_token, newTokenData.refresh_token, bic, consents);
 
         return res.json(token);
     } catch (error) {
@@ -115,7 +115,7 @@ const handleAuthCallback = async (req, res) => {
         const { refreshToken } = req.user;
         const { bic } = req.user
 
-        const token = generateToken(accessToken, refreshToken, bic, {});
+        const token = await generateToken(accessToken, refreshToken, bic, {});
 
         res.redirect(`${process.env.APP_URL}/account/?token=${token}`);
     } catch (error) {

@@ -29,14 +29,12 @@ const redirectConsent = async (req, res) => {
 
         const consent = await consentModel.createConsent(bic, accessToken, date, reqId, userIp, userAgent, consentDetails, redirect, authorisation);
 
-        console.log('consent: ', consent)
-
         accountId = req.body?.accountId || consentDetails?.access?.availableAccounts;
         consents[accountId] = consent.consentId;
 
         consentId = consent.consentId;
 
-        const token = generateToken(accessToken, refreshToken, bic, consents);
+        const token = await generateToken(accessToken, refreshToken, bic, consents);
         consent.token = token;
 
         res.status(200).json(consent);
@@ -75,7 +73,7 @@ const decoupledConsent = async (req, res) => {
         consents[accountId] = consent.consentId;
 
         // generate session token
-        const token = generateToken(accessToken, refreshToken, bic, consents);
+        const token = await generateToken(accessToken, refreshToken, bic, consents);
         consentData.token = token;
 
         res.status(200).json(consentData);
@@ -130,23 +128,21 @@ const checkScaStatus = async (req, res) => {
 // handle consent callback - checks if consent is valid and redirects to detailed account page
 const handleConsentCallback = async (req, res) => {
     try {
-        const accessToken = req.user.accessToken;
+        // const accessToken = req.user.accessToken;
 
-        const date = new Date().toUTCString()
-        const reqId = uuidv4();
+        // const date = new Date().toUTCString()
+        // const reqId = uuidv4();
 
-        console.log(bic)
+        // const consentStatus = await consentModel.getConsentStatus(bic, accessToken, date, reqId, consentId);
 
-        const consentStatus = await consentModel.getConsentStatus(bic, accessToken, date, reqId, consentId);
-
-        if (consentStatus !== 'valid') {
-            return res.status(400).redirect(`${process.env.APP_URL}/account`);
-        }
+        // if (consentStatus !== 'valid') {
+        //     return res.status(400).redirect(`${process.env.APP_URL}/account`);
+        // }
 
         return res.status(200).redirect(`${process.env.APP_URL}/account/${accountId}/balance`);
     } catch (error) {
         console.error(error?.response?.data?.tppMessages || error);
-        return res.status(500).send(error?.response?.data?.tppMessages || error);
+        return res.status(500).redirect(`${process.env.APP_URL}/account`);
     }
 }
 

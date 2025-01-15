@@ -107,8 +107,6 @@ const getAuthToken = async (bic, credentials, authCode) => {
     
     const { data } = await axios.post(`${process.env.SWEDBANK_API_URL}/psd2/token`, body, {headers});
 
-    console.log(data)   
-
 
     return data;
 }
